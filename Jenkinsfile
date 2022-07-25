@@ -17,7 +17,7 @@ pipeline {
         steps {
           checkout([$class: 'GitSCM', 
                       branches: scm.branches,
-                      extensions: [[$class: 'CleanCheckout']],
+ //                     extensions: [[$class: 'CleanCheckout']],
                       userRemoteConfigs: [[url: 'https://github.com/beglaryanzhan/app1']]
           ])
         }
