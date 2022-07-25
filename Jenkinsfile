@@ -17,20 +17,33 @@ pipeline {
         steps {
           checkout([$class: 'GitSCM', 
                       branches: scm.branches,
-                      extensions: [[$class: 'CleanCheckout']],
-                      userRemoteConfigs: [[url: 'https://github.com/beglaryanzhan/testingTest']]
+ //                     extensions: [[$class: 'CleanCheckout']],
+                      userRemoteConfigs: [[url: 'https://github.com/beglaryanzhan/app1']]
           ])
         }
       }        
-    stage('testing env') {
-      steps {
-          echo "$DOCKER_FILE"
-          echo "$agentLabel"
+      stage('testing env') {
+        steps {
+            echo "$DOCKER_FILE"
+            echo "$agentLabel"
         }
       }
+      stage('Jira') {
+        steps {
+          script {
+            def commit = sh(returnStdout: true, script: 'git log -1 --pretty=%B | awk \'{ print $1 }\' | xargs')
+            def Issuekey = (commit =~ '([A-Z][A-Z0-9]+)')
+          }
+        } 
+      }      
     }
-  post successful {
-    def messaging = [ body: 'Build Status: Success, Branch: ${env.GIT_BRANCH}' ]
-    jiraAddComment site: 'JIRA', idOrKey: JIRA_ISSUE_KEY, input: messaging 
+  post {
+    success {
+      script {
+        if (Issuekey)
+          def messaging = [ body: 'Build Status: Success, Branch: ${env.GIT_BRANCH}' ]
+          jiraAddComment site: 'JIRA', idOrKey: Issuekey, input: messaging
+      }
+    }
   }
 }
