@@ -28,10 +28,22 @@ pipeline {
             echo "$agentLabel"
         }
       }
+      stage('Jira') {
+        steps {
+          script {
+            def commit = sh(returnStdout: true, script: 'git log -1 --pretty=%B | awk '{ print $1 }' | xargs')
+            def Issuekey = (commit =~ '([A-Z][A-Z0-9]+)')
+          }
+        } 
+      }      
     }
   post {
     success {
-      def messaging = [ body: 'Build Status: Success, Branch: ${env.GIT_BRANCH}' ]
-      jiraAddComment site: 'JIRA', idOrKey: JIRA_ISSUE_KEY, input: messaging 
+      script {
+        if (Issuekey)
+          def messaging = [ body: 'Build Status: Success, Branch: ${env.GIT_BRANCH}' ]
+          jiraAddComment site: 'JIRA', idOrKey: Issuekey, input: messaging
+      }
+    }
   }
 }
