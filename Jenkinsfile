@@ -22,15 +22,16 @@ pipeline {
           ])
         }
       }        
-    stage('testing env') {
-      steps {
-          echo "$DOCKER_FILE"
-          echo "$agentLabel"
+      stage('testing env') {
+        steps {
+            echo "$DOCKER_FILE"
+            echo "$agentLabel"
         }
       }
     }
-  post successful {
-    def messaging = [ body: 'Build Status: Success, Branch: ${env.GIT_BRANCH}' ]
-    jiraAddComment site: 'JIRA', idOrKey: JIRA_ISSUE_KEY, input: messaging 
+  post {
+    success {
+      def messaging = [ body: 'Build Status: Success, Branch: ${env.GIT_BRANCH}' ]
+      jiraAddComment site: 'JIRA', idOrKey: JIRA_ISSUE_KEY, input: messaging 
   }
 }
