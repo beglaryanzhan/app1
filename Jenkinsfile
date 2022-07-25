@@ -31,7 +31,7 @@ pipeline {
       stage('Jira') {
         steps {
           script {
-            def commit = sh(returnStdout: true, script: "git log -1 --pretty=%B | awk '{ print $1 }' | xargs")
+            def commit = sh(returnStdout: true, script: 'git log -1 --pretty=%B | awk \'{ print $1 }\' | xargs')
             def Issuekey = (commit =~ '([A-Z][A-Z0-9]+)')
           }
         } 
